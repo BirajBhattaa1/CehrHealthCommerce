@@ -50,10 +50,10 @@ Install the following on Windows:
    `(localdb)\MSSQLLocalDB`.
 3. *(Optional)* **Visual Studio 2022** — for an IDE experience; not required if you use the CLI.
 
-Verify the SDK is installed:
 
 ```bash
 dotnet --version      # should print 8.0.xxx
+
 
 ## 7. SEO & analytics
 
