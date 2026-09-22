@@ -51,10 +51,6 @@ Install the following on Windows:
 3. *(Optional)* **Visual Studio 2022** — for an IDE experience; not required if you use the CLI.
 
 
-```bash
-dotnet --version      # should print 8.0.xxx
-
-
 ## 7. SEO & analytics
 
 - **Sitemap:** `GET /sitemap.xml` — generated dynamically from active categories and products.
