@@ -1,0 +1,28 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## User-specific / secrets (never commit real secrets)
+appsettings.*.local.json
+secrets.json
+
+## SQL Server LocalDB files (if any get created locally)
+*.mdf
+*.ldf
+
+## OS files
+Thumbs.db
+.DS_Store

@@ -1,0 +1,38 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My profile";
+}
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">My profile</h1>
+    <a asp-controller="Account" asp-action="EditProfile" class="btn btn-outline-secondary btn-sm">Edit</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">National ID (NID)</dt>
+            <dd class="col-sm-9"><span class="badge bg-brand">@Model.NID</span> <span class="text-muted small">(simulated identifier)</span></dd>
+
+            <dt class="col-sm-3">Full name</dt>
+            <dd class="col-sm-9">@Model.FullName</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</dd>
+
+            <dt class="col-sm-3">Member since</dt>
+            <dd class="col-sm-9">@Model.CreatedAt.ToString("yyyy-MM-dd")</dd>
+
+            <dt class="col-sm-3">Roles</dt>
+            <dd class="col-sm-9">@(Model.Roles.Any() ? string.Join(", ", Model.Roles) : "Customer")</dd>
+        </dl>
+    </div>
+</div>

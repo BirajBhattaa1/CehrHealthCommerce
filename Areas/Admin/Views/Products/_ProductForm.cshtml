@@ -1,0 +1,97 @@
+@model ProductFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 mb-3">
+                <label asp-for="SKU" class="form-label"></label>
+                <input asp-for="SKU" class="form-control" />
+                <span asp-validation-for="SKU" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="Manufacturer" class="form-label"></label>
+                <input asp-for="Manufacturer" class="form-control" />
+                <span asp-validation-for="Manufacturer" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4 mb-3">
+                <label asp-for="Price" class="form-label">Price (NPR)</label>
+                <div class="input-group">
+                    <span class="input-group-text">Rs.</span>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+                <span asp-validation-for="Price" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="StockQuantity" class="form-label"></label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+                <span asp-validation-for="StockQuantity" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label asp-for="ExpiryDate" class="form-label"></label>
+                <input asp-for="ExpiryDate" class="form-control" type="date" />
+                <span asp-validation-for="ExpiryDate" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card bg-light border-0">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="CategoryId" class="form-label"></label>
+                    <select asp-for="CategoryId" asp-items="ViewBag.Categories" class="form-select">
+                        <option value="">— Choose category —</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProductType" class="form-label"></label>
+                    <select asp-for="ProductType" asp-items="ViewBag.ProductTypes" class="form-select"></select>
+                    <span asp-validation-for="ProductType" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ImageFile" class="form-label"></label>
+                    <input asp-for="ImageFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" />
+                    <div class="form-text">JPG, PNG, WEBP or GIF · max 2 MB.</div>
+                    <span asp-validation-for="ImageFile" class="text-danger small"></span>
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <div class="mt-2">
+                            <img src="@Model.ImageUrl" alt="Current image" class="img-thumbnail" style="max-height: 120px;" />
+                            <div class="form-text">Current image — upload a new file to replace.</div>
+                        </div>
+                    }
+                    <input type="hidden" asp-for="ImageUrl" />
+                </div>
+
+                <div class="form-check form-switch mb-2">
+                    <input asp-for="PrescriptionRequired" class="form-check-input" />
+                    <label asp-for="PrescriptionRequired" class="form-check-label"></label>
+                </div>
+                <div class="form-check form-switch">
+                    <input asp-for="IsActive" class="form-check-input" />
+                    <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,134 @@
+@model Order
+@{
+    ViewData["Title"] = $"Order #{Model.OrderId}";
+    var itemsSubtotal = Model.Items.Sum(i => i.UnitPrice * i.Quantity);
+    var delivery = Model.TotalAmount - itemsSubtotal;
+    var statuses = Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>();
+}
+
+@functions {
+    static string StatusClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Confirmed => "bg-primary",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+    static string PayClass(PaymentStatus s) => s switch
+    {
+        PaymentStatus.Successful => "bg-success",
+        PaymentStatus.Failed => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Order #@Model.OrderId</h1>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to orders</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold">Items</div>
+            <div class="card-body p-0">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr><th class="ps-3">Product</th><th class="text-end">Unit price</th><th class="text-center">Qty</th><th class="text-end pe-3">Line total</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model.Items)
+                        {
+                            <tr>
+                                <td class="ps-3">@i.ProductName</td>
+                                <td class="text-end">Rs. @i.UnitPrice.ToString("N2")</td>
+                                <td class="text-center">@i.Quantity</td>
+                                <td class="text-end pe-3">Rs. @((i.UnitPrice * i.Quantity).ToString("N2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr><td colspan="3" class="text-end">Subtotal</td><td class="text-end pe-3">Rs. @itemsSubtotal.ToString("N2")</td></tr>
+                        <tr><td colspan="3" class="text-end">Delivery</td><td class="text-end pe-3">Rs. @delivery.ToString("N2")</td></tr>
+                        <tr class="fw-bold"><td colspan="3" class="text-end">Total</td><td class="text-end pe-3">Rs. @Model.TotalAmount.ToString("N2")</td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Delivery address</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>@Model.FullName</strong></p>
+                <p class="mb-1">@Model.Phone · @Model.Email</p>
+                <p class="mb-0">
+                    @Model.AddressLine,
+                    @(string.IsNullOrWhiteSpace(Model.Ward) ? "" : $"Ward {Model.Ward}, ")@Model.Municipality<br />
+                    @Model.District, @Model.Province
+                    @(string.IsNullOrWhiteSpace(Model.PostalCode) ? "" : $" · {Model.PostalCode}")
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white fw-semibold">Status</div>
+            <div class="card-body">
+                <p class="mb-2">Order: <span class="badge @StatusClass(Model.OrderStatus)">@Model.OrderStatus</span></p>
+                <p class="mb-3">Payment: <span class="badge @PayClass(Model.PaymentStatus)">@Model.PaymentStatus</span></p>
+
+                <form asp-action="UpdateStatus" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.OrderId" />
+                    <label for="status" class="form-label small">Update order status</label>
+                    <div class="input-group">
+                        <select name="status" id="status" class="form-select">
+                            @foreach (var s in statuses)
+                            {
+                                if (s == Model.OrderStatus)
+                                {
+                                    <option value="@s" selected>@s</option>
+                                }
+                                else
+                                {
+                                    <option value="@s">@s</option>
+                                }
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-brand">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold">Payment</div>
+            <div class="card-body">
+                @if (Model.Payment is not null)
+                {
+                    <dl class="row mb-0 small">
+                        <dt class="col-5">Method</dt><dd class="col-7">@Model.Payment.Method</dd>
+                        <dt class="col-5">Amount</dt><dd class="col-7">Rs. @Model.Payment.Amount.ToString("N2")</dd>
+                        <dt class="col-5">Status</dt><dd class="col-7">@Model.Payment.PaymentStatus</dd>
+                        <dt class="col-5">Txn UUID</dt><dd class="col-7"><code class="small">@Model.Payment.TransactionUuid</code></dd>
+                        @if (!string.IsNullOrEmpty(Model.Payment.GatewayRef))
+                        {
+                            <dt class="col-5">Gateway ref</dt><dd class="col-7"><code class="small">@Model.Payment.GatewayRef</code></dd>
+                        }
+                        @if (Model.Payment.VerifiedAt is not null)
+                        {
+                            <dt class="col-5">Verified</dt><dd class="col-7">@Model.Payment.VerifiedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                        }
+                    </dl>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No payment record.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

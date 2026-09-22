@@ -1,0 +1,81 @@
+@model Order
+@{
+    ViewData["Title"] = "Order confirmed";
+    var subtotal = Model.Items.Sum(i => i.LineTotal);
+    var delivery = Model.TotalAmount - subtotal;
+}
+
+<div class="text-center py-4">
+    <i class="bi bi-check-circle-fill text-success" style="font-size:4rem;"></i>
+    <h1 class="h3 mt-3">Thank you! Your order is placed.</h1>
+    <p class="text-muted">Your order number is <strong>#@Model.OrderId</strong>.</p>
+</div>
+
+@if (Model.PaymentStatus == PaymentStatus.Successful)
+{
+    <div class="alert alert-success text-center">
+        <i class="bi bi-cash-coin"></i> Payment received via @Model.Payment?.Method. Your order is confirmed.
+    </div>
+}
+else if (Model.Payment?.Method == "Cash on Delivery")
+{
+    <div class="alert alert-info text-center">
+        <i class="bi bi-truck"></i> You chose <strong>Cash on Delivery</strong>. Please keep Rs. @Model.TotalAmount.ToString("N2") ready on delivery.
+    </div>
+}
+else
+{
+    <div class="alert alert-warning text-center">
+        <i class="bi bi-hourglass-split"></i> Payment is pending.
+        <a asp-controller="Payment" asp-action="Pay" asp-route-orderId="@Model.OrderId" class="alert-link">Complete your payment</a>.
+    </div>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Order summary</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.ProductName</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end">Rs. @item.LineTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr><td colspan="2" class="text-end text-muted">Subtotal</td><td class="text-end">Rs. @subtotal.ToString("N2")</td></tr>
+                            <tr><td colspan="2" class="text-end text-muted">Delivery</td><td class="text-end">Rs. @delivery.ToString("N2")</td></tr>
+                            <tr><td colspan="2" class="text-end h6 mb-0">Total</td><td class="text-end h6 mb-0 text-brand">Rs. @Model.TotalAmount.ToString("N2")</td></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <hr />
+                <div class="small text-muted">
+                    <strong>Delivering to:</strong> @Model.FullName, @Model.AddressLine,
+                    @Model.Municipality@(string.IsNullOrEmpty(Model.Ward) ? "" : $", Ward {Model.Ward}"),
+                    @Model.District, @Model.Province.
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-outline-primary">View order details</a>
+                    <a asp-action="Index" class="btn btn-outline-secondary">My orders</a>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-brand ms-auto">Continue shopping</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "About — CEHR & this project";
+    ViewData["MetaDescription"] = "How this health e-commerce store relates to Nepal's e-governance and the proposed Centralized Electronic Health Record (CEHR). Academic CSC381 project.";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">About</li>
+    </ol>
+</nav>
+
+<h1 class="h3 mb-3">About this project</h1>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <p>CEHR Health is a health-focused e-commerce platform developed for the <strong>CSC381 E-Commerce</strong> course (BSc CSIT, 6th semester). It is built with ASP.NET Core MVC, C#, Entity Framework Core and SQL Server.</p>
+
+        <h2 class="h5 mt-4">The case study vs. what we built</h2>
+        <p>Our <em>case study</em> looks at Nepal's e-governance journey and a proposed <strong>Centralized Electronic Health Record (CEHR)</strong> — a national system that would connect a citizen's health information through a unique identity. Our <em>implementation</em> is the working online store you see here: a citizen (identified by a National ID) can browse medicines, medical equipment and health products, add them to a cart, check out, pay through a sandbox gateway, and track orders.</p>
+
+        <div class="row g-3 my-2">
+            <div class="col-md-6">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <div class="fw-semibold text-brand mb-1">Case study (context)</div>
+                        <div class="small text-muted">Nepal E-Governance &rarr; CEHR &rarr; Citizen / NID</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 bg-light h-100">
+                    <div class="card-body">
+                        <div class="fw-semibold text-brand mb-1">This application (implementation)</div>
+                        <div class="small text-muted">Citizen / NID &rarr; Health E-Commerce &rarr; Cart &rarr; Checkout &rarr; Payment &rarr; Orders</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="h5 mt-4">National ID (NID)</h2>
+        <p>Each citizen account carries a unique <strong>NID</strong>. It is the proposed identifier that a future CEHR could use to link a person to national health services. In this project the NID is a <strong>simulated, local identifier</strong> stored only in our own database.</p>
+
+        <h2 class="h5 mt-4">Designed for the future, honest about today</h2>
+        <p>The application is organised around clear service boundaries (products, cart, orders, payments, recommendations, citizen identity) so that a real CEHR/NID integration could be added later without rebuilding the store.</p>
+
+        <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Important:</strong> This is an academic prototype. It is <strong>not</strong> connected to any Government of Nepal NID or CEHR system, it does not process real prescriptions or real payments, and all products, prices and personal data are fictional/sample.
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 text-brand">Technology stack</h2>
+                <ul class="list-unstyled small mb-0">
+                    <li><i class="bi bi-dot"></i> ASP.NET Core MVC (.NET 8)</li>
+                    <li><i class="bi bi-dot"></i> C#</li>
+                    <li><i class="bi bi-dot"></i> Entity Framework Core + SQL Server</li>
+                    <li><i class="bi bi-dot"></i> ASP.NET Core Identity</li>
+                    <li><i class="bi bi-dot"></i> Razor views, Bootstrap 5</li>
+                    <li><i class="bi bi-dot"></i> eSewa sandbox payment</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Identity
+@using CehrHealthCommerce.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="userMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i> @User.Identity?.Name
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+            <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">My profile</a></li>
+            <li><a class="dropdown-item" asp-controller="Orders" asp-action="Index">My orders</a></li>
+            @if (User.IsInRole("Admin"))
+            {
+                <li><hr class="dropdown-divider" /></li>
+                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin dashboard</a></li>
+            }
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="px-3 py-1">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary w-100">Logout</button>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+else
+{
+    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login"><i class="bi bi-box-arrow-in-right"></i> Login</a></li>
+    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Register</a></li>
+}

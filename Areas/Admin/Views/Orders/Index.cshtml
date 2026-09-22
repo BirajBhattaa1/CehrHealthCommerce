@@ -1,0 +1,74 @@
+@model IReadOnlyList<Order>
+@{
+    ViewData["Title"] = "Orders";
+}
+
+@functions {
+    static string StatusClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Confirmed => "bg-primary",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+    static string PayClass(PaymentStatus s) => s switch
+    {
+        PaymentStatus.Successful => "bg-success",
+        PaymentStatus.Failed => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<h1 class="h3 mb-3">Orders</h1>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <p class="text-muted p-3 mb-0">No orders yet.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Order</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th class="text-end">Total</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th class="pe-3 text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model)
+                        {
+                            <tr>
+                                <td class="ps-3 fw-semibold">#@o.OrderId</td>
+                                <td class="small text-muted">@o.OrderDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                <td>
+                                    <div>@(o.User?.FullName ?? o.FullName)</div>
+                                    <div class="small text-muted">@o.Phone</div>
+                                </td>
+                                <td class="text-end">Rs. @o.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    <span class="badge @PayClass(o.PaymentStatus)">@o.PaymentStatus</span>
+                                    @if (o.Payment is not null)
+                                    {
+                                        <div class="small text-muted">@o.Payment.Method</div>
+                                    }
+                                </td>
+                                <td><span class="badge @StatusClass(o.OrderStatus)">@o.OrderStatus</span></td>
+                                <td class="pe-3 text-end"><a asp-action="Details" asp-route-id="@o.OrderId" class="btn btn-sm btn-outline-primary">Manage</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

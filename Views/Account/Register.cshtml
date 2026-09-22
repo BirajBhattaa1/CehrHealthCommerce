@@ -1,0 +1,65 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create your account";
+    ViewData["MetaDescription"] = "Register a CEHR Health account with your National ID (NID) to shop for medicines and medical equipment.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <h1 class="h3 mb-1">Create your account</h1>
+        <p class="text-muted small mb-4">Your <strong>NID</strong> is a simulated citizen identifier stored only in this app. It is not linked to any government system.</p>
+
+        <form asp-controller="Account" asp-action="Register" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" autocomplete="name" />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NID" class="form-label"></label>
+                <input asp-for="NID" class="form-control" placeholder="e.g. 1234567890" inputmode="numeric" />
+                <div class="form-text">10 to 16 digits.</div>
+                <span asp-validation-for="NID" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-7 mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" autocomplete="tel" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-brand w-100">Create account</button>
+        </form>
+
+        <p class="text-center text-muted small mt-3 mb-0">
+            Already have an account? <a asp-controller="Account" asp-action="Login">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

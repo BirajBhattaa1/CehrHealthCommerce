@@ -1,0 +1,124 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@functions {
+    static string StatusClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Confirmed => "bg-primary",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+}
+
+<h1 class="h3 mb-4">Dashboard</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Products</div>
+                <div class="h3 mb-0">@Model.ProductCount</div>
+                <div class="small text-success">@Model.ActiveProductCount active</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Orders</div>
+                <div class="h3 mb-0">@Model.OrderCount</div>
+                <div class="small text-warning">@Model.PendingOrderCount pending</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Customers</div>
+                <div class="h3 mb-0">@Model.CustomerCount</div>
+                <div class="small text-muted">@Model.CategoryCount categories</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small text-uppercase">Paid revenue</div>
+                <div class="h3 mb-0">Rs. @Model.TotalRevenue.ToString("N0")</div>
+                <div class="small text-muted">successful payments</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Recent orders</span>
+                <a asp-controller="Orders" asp-action="Index" class="small">View all</a>
+            </div>
+            <div class="card-body p-0">
+                @if (!Model.RecentOrders.Any())
+                {
+                    <p class="text-muted p-3 mb-0">No orders yet.</p>
+                }
+                else
+                {
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr><th class="ps-3">Order</th><th>Customer</th><th class="text-end">Total</th><th>Status</th><th class="pe-3"></th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td class="ps-3 fw-semibold">#@o.OrderId</td>
+                                    <td>@(o.User?.FullName ?? o.FullName)</td>
+                                    <td class="text-end">Rs. @o.TotalAmount.ToString("N2")</td>
+                                    <td><span class="badge @StatusClass(o.OrderStatus)">@o.OrderStatus</span></td>
+                                    <td class="pe-3 text-end"><a asp-controller="Orders" asp-action="Details" asp-route-id="@o.OrderId" class="small">Open</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Low stock</span>
+                <a asp-controller="Products" asp-action="Index" class="small">Manage</a>
+            </div>
+            <div class="card-body p-0">
+                @if (!Model.LowStockProducts.Any())
+                {
+                    <p class="text-muted p-3 mb-0">All products are well stocked.</p>
+                }
+                else
+                {
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th class="ps-3">Product</th><th class="text-end pe-3">Stock</th></tr></thead>
+                        <tbody>
+                            @foreach (var p in Model.LowStockProducts)
+                            {
+                                <tr>
+                                    <td class="ps-3">@p.Name</td>
+                                    <td class="text-end pe-3"><span class="badge @(p.StockQuantity == 0 ? "bg-danger" : "bg-warning text-dark")">@p.StockQuantity</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>

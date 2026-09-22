@@ -1,0 +1,15 @@
+@model CehrHealthCommerce.ViewComponents.RelatedProductsViewModel
+
+@if (Model.Products.Any())
+{
+    <section class="mt-5">
+        <h2 class="h4 mb-1">@Model.Heading</h2>
+        <p class="text-muted small mb-3">Recommended from the same category or product type.</p>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+            @foreach (var r in Model.Products)
+            {
+                <partial name="_ProductCard" model="r" />
+            }
+        </div>
+    </section>
+}

@@ -1,0 +1,104 @@
+@model IReadOnlyList<Product>
+@{
+    ViewData["Title"] = "Products";
+    var search = ViewBag.Search as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Products</h1>
+    <a asp-action="Create" class="btn btn-brand"><i class="bi bi-plus-lg"></i> New product</a>
+</div>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="input-group" style="max-width: 420px;">
+        <input type="text" name="q" value="@search" class="form-control" placeholder="Search by name, SKU or manufacturer…" />
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+        @if (!string.IsNullOrWhiteSpace(search))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        }
+    </div>
+</form>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <p class="text-muted p-3 mb-0">No products found.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Product</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th class="text-end">Price</th>
+                            <th style="width: 170px;">Stock</th>
+                            <th>Status</th>
+                            <th class="pe-3 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (!string.IsNullOrEmpty(p.ImageUrl))
+                                        {
+                                            <img src="@p.ImageUrl" alt="@p.Name" width="40" height="40" class="rounded object-fit-cover border" />
+                                        }
+                                        else
+                                        {
+                                            <span class="d-inline-flex align-items-center justify-content-center bg-light border rounded text-muted" style="width:40px;height:40px;"><i class="bi bi-capsule"></i></span>
+                                        }
+                                        <div>
+                                            <div class="fw-semibold">@p.Name</div>
+                                            <div class="small text-muted">@p.SKU</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@(p.Category?.Name ?? "—")</td>
+                                <td><span class="small">@p.ProductType</span></td>
+                                <td class="text-end">Rs. @p.Price.ToString("N2")</td>
+                                <td>
+                                    <form asp-action="UpdateStock" method="post" class="d-flex gap-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@p.ProductId" />
+                                        <input type="number" name="stockQuantity" value="@p.StockQuantity" min="0" class="form-control form-control-sm @(p.StockQuantity <= 5 ? "border-warning" : "")" style="width: 90px;" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Update stock"><i class="bi bi-check2"></i></button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @if (p.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Hidden</span>
+                                    }
+                                </td>
+                                <td class="pe-3 text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Edit" asp-route-id="@p.ProductId" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <form asp-action="ToggleActive" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@p.ProductId" />
+                                            <button type="submit" class="btn btn-outline-secondary" title="@(p.IsActive ? "Deactivate" : "Activate")">
+                                                <i class="bi @(p.IsActive ? "bi-eye-slash" : "bi-eye")"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

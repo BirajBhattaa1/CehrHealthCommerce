@@ -1,0 +1,66 @@
+@model IReadOnlyList<Category>
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Categories</h1>
+    <a asp-action="Create" class="btn btn-brand"><i class="bi bi-plus-lg"></i> New category</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <p class="text-muted p-3 mb-0">No categories yet.</p>
+        }
+        else
+        {
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Name</th>
+                        <th>Slug</th>
+                        <th>Parent</th>
+                        <th class="text-center">Products</th>
+                        <th>Status</th>
+                        <th class="pe-3 text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-semibold">@c.Name</td>
+                            <td><code class="small">@c.Slug</code></td>
+                            <td>@(c.ParentCategory?.Name ?? "—")</td>
+                            <td class="text-center">@(c.Products?.Count ?? 0)</td>
+                            <td>
+                                @if (c.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Hidden</span>
+                                }
+                            </td>
+                            <td class="pe-3 text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@c.CategoryId" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                    <form asp-action="ToggleActive" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@c.CategoryId" />
+                                        <button type="submit" class="btn btn-outline-secondary" title="@(c.IsActive ? "Deactivate" : "Activate")">
+                                            <i class="bi @(c.IsActive ? "bi-eye-slash" : "bi-eye")"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

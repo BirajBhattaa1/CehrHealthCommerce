@@ -1,0 +1,45 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Edit profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h1 class="h3 mb-4">Edit profile</h1>
+
+        <form asp-controller="Account" asp-action="EditProfile" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none-empty"></div>
+
+            <div class="mb-3">
+                <label class="form-label">National ID (NID)</label>
+                <input class="form-control" value="@Model.NID" disabled />
+                <div class="form-text">NID is your identity anchor and cannot be changed here.</div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label"></label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-brand">Save changes</button>
+            <a asp-controller="Account" asp-action="Profile" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

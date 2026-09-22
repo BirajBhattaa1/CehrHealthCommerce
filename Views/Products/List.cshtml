@@ -1,0 +1,111 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row g-4">
+    <aside class="col-lg-3">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h6 text-uppercase text-muted mb-3">Browse</h2>
+                <div class="list-group list-group-flush">
+                    <a asp-controller="Products" asp-action="Index"
+                       class="list-group-item list-group-item-action @(Model.ActiveType == null && Model.CategorySlug == null ? "active" : "")">All products</a>
+                    <a asp-controller="Products" asp-action="Medicines"
+                       class="list-group-item list-group-item-action @(Model.ActiveType == ProductType.Medicine ? "active" : "")">Medicines</a>
+                    <a asp-controller="Products" asp-action="Equipment"
+                       class="list-group-item list-group-item-action @(Model.ActiveType == ProductType.MedicalEquipment ? "active" : "")">Medical Equipment</a>
+                    <a asp-controller="Products" asp-action="HealthProducts"
+                       class="list-group-item list-group-item-action @(Model.ActiveType == ProductType.HealthProduct ? "active" : "")">Health Products</a>
+                </div>
+            </div>
+        </div>
+
+        @if (Model.Categories.Any())
+        {
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-muted mb-3">Categories</h2>
+                    <div class="list-group list-group-flush">
+                        @foreach (var c in Model.Categories)
+                        {
+                            <a asp-controller="Products" asp-action="Category" asp-route-slug="@c.Slug"
+                               class="list-group-item list-group-item-action @(Model.CategorySlug == c.Slug ? "active" : "")">@c.Name</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </aside>
+
+    <div class="col-lg-9">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mb-3 gap-2">
+            <div>
+                <h1 class="h3 mb-1">@Model.Title</h1>
+                @if (!string.IsNullOrEmpty(Model.Subtitle))
+                {
+                    <p class="text-muted mb-0">@Model.Subtitle</p>
+                }
+            </div>
+            <form method="get" asp-controller="Products" asp-action="@Model.ListAction" class="d-flex align-items-center gap-2">
+                @if (!string.IsNullOrEmpty(Model.CategorySlug))
+                {
+                    <input type="hidden" name="slug" value="@Model.CategorySlug" />
+                }
+                @if (!string.IsNullOrEmpty(Model.Query))
+                {
+                    <input type="hidden" name="q" value="@Model.Query" />
+                }
+                <label class="form-label mb-0 small text-muted">Sort</label>
+                <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="" selected="@(string.IsNullOrEmpty(Model.Sort))">Newest</option>
+                    <option value="price_asc" selected="@(Model.Sort == "price_asc")">Price: Low to High</option>
+                    <option value="price_desc" selected="@(Model.Sort == "price_desc")">Price: High to Low</option>
+                    <option value="name" selected="@(Model.Sort == "name")">Name: A to Z</option>
+                </select>
+            </form>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Query))
+        {
+            <p class="text-muted small">Showing results for &ldquo;<strong>@Model.Query</strong>&rdquo; — @Model.Results.TotalCount found.</p>
+        }
+
+        @if (!Model.Results.Items.Any())
+        {
+            <div class="alert alert-light border text-center py-5">
+                <i class="bi bi-search fs-3 d-block mb-2 text-muted"></i>
+                No products found. Try a different filter or search term.
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-3">
+                @foreach (var p in Model.Results.Items)
+                {
+                    <partial name="_ProductCard" model="p" />
+                }
+            </div>
+
+            @if (Model.Results.TotalPages > 1)
+            {
+                <nav class="mt-4" aria-label="Product pages">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item @(Model.Results.HasPrevious ? "" : "disabled")">
+                            <a class="page-link" asp-action="@Model.ListAction" asp-all-route-data="@Model.RouteValues()" asp-route-page="@(Model.Results.Page - 1)">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= Model.Results.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == Model.Results.Page ? "active" : "")">
+                                <a class="page-link" asp-action="@Model.ListAction" asp-all-route-data="@Model.RouteValues()" asp-route-page="@i">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.Results.HasNext ? "" : "disabled")">
+                            <a class="page-link" asp-action="@Model.ListAction" asp-all-route-data="@Model.RouteValues()" asp-route-page="@(Model.Results.Page + 1)">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+    </div>
+</div>

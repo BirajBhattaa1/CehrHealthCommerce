@@ -1,0 +1,102 @@
+@model ProductDetailsViewModel
+@{
+    var p = Model.Product;
+    ViewData["Title"] = p.Name;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">Products</a></li>
+        @if (p.Category != null)
+        {
+            <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Category" asp-route-slug="@p.Category.Slug">@p.Category.Name</a></li>
+        }
+        <li class="breadcrumb-item active" aria-current="page">@p.Name</li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    <div class="col-md-5">
+        <div class="border rounded bg-white d-flex align-items-center justify-content-center p-3" style="min-height:320px;">
+            @if (!string.IsNullOrEmpty(p.ImageUrl))
+            {
+                <img src="@p.ImageUrl" class="img-fluid" alt="@p.Name" />
+            }
+            else
+            {
+                <i class="bi bi-capsule text-muted" style="font-size:5rem;"></i>
+            }
+        </div>
+    </div>
+    <div class="col-md-7">
+        <span class="badge bg-light text-muted mb-2">@p.Category?.Name</span>
+        <h1 class="h3">@p.Name</h1>
+        <div class="text-muted small mb-2">
+            SKU: @p.SKU@(string.IsNullOrEmpty(p.Manufacturer) ? "" : $" • {p.Manufacturer}")
+        </div>
+        <div class="h4 text-brand mb-3">Rs. @p.Price.ToString("N2")</div>
+
+        @if (p.PrescriptionRequired)
+        {
+            <div class="alert alert-warning py-2 small">
+                <i class="bi bi-file-medical"></i> This item normally requires a valid prescription.
+                <em>(Academic demo — no real prescription validation is performed.)</em>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(p.Description))
+        {
+            <p>@p.Description</p>
+        }
+
+        <div class="mb-3">
+            @if (p.StockQuantity > 0)
+            {
+                <span class="badge bg-success-subtle text-success-emphasis">In stock (@p.StockQuantity)</span>
+            }
+            else
+            {
+                <span class="badge bg-danger-subtle text-danger-emphasis">Out of stock</span>
+            }
+            @if (p.ExpiryDate.HasValue)
+            {
+                <span class="text-muted small ms-2">Expiry: @p.ExpiryDate.Value.ToString("yyyy-MM")</span>
+            }
+        </div>
+
+        @if (p.StockQuantity > 0)
+        {
+            if (User.Identity?.IsAuthenticated ?? false)
+            {
+                <form asp-controller="Cart" asp-action="Add" method="post" class="d-flex align-items-end gap-2">
+                    <input type="hidden" name="productId" value="@p.ProductId" />
+                    <div>
+                        <label class="form-label small mb-0">Qty</label>
+                        <input type="number" name="quantity" value="1" min="1" max="@p.StockQuantity" class="form-control" style="width:90px;" />
+                    </div>
+                    <button type="submit" class="btn btn-brand"><i class="bi bi-cart-plus"></i> Add to cart</button>
+                </form>
+            }
+            else
+            {
+                <a asp-controller="Account" asp-action="Login"
+                   asp-route-returnUrl="@Url.Action("Details", "Products", new { slug = p.Slug })"
+                   class="btn btn-brand"><i class="bi bi-box-arrow-in-right"></i> Sign in to add to cart</a>
+            }
+        }
+    </div>
+</div>
+
+@if (Model.Related.Any())
+{
+    <hr class="my-5" />
+    <h2 class="h4 mb-1">You may also like</h2>
+    <p class="text-muted small mb-3">Recommended because they share the same category or product type.</p>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">
+        @foreach (var r in Model.Related)
+        {
+            <partial name="_ProductCard" model="r" />
+        }
+    </div>
+}
