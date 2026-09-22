@@ -112,44 +112,7 @@ https://localhost:7080
 
 *(Optional)* If you prefer to create the database before running, you can run
 `dotnet ef database update` after Step 3 — but it is not necessary because startup migration
-handles it.
-
----
-
-## 5. Demo accounts (seeded automatically)
-
-| Role | Email | Password |
-|------|-------|----------|
-| **Admin** | `admin@cehrhealth.local` | `Admin@123` |
-| **Customer** | `customer@cehrhealth.local` | `Customer@123` |
-
-- The **Admin** account can reach the admin area at **`/Admin`** (dashboard, products, categories,
-  orders, users).
-- You can also **register a new customer** from the site — registration asks for a simulated
-  **NID** (any unique number for the demo).
-
-> These are fictional demo credentials for local testing only. For any real deployment, change them
-> and move secrets to user-secrets or environment variables (see §8).
-
----
-
-## 6. Testing the eSewa sandbox payment
-
-At checkout, choose to pay with eSewa. You will be redirected to the eSewa **sandbox** form using
-the public test merchant code `EPAYTEST`. Use eSewa's published sandbox test credentials to
-complete a payment (for example eSewa test eSewa-ID `9806800001`/`9806800002`…`9806800005`, password
-`Nepal@123`, MPIN `1122`, token `123456` — refer to the current eSewa developer docs, as sandbox
-values may change).
-
-On return, the app **verifies the HMAC-SHA256 signature** of the response before marking the order
-paid (`EsewaPaymentService.VerifyAsync`). A tampered or unsigned callback is rejected and the order
-is **not** marked paid.
-
-- **Success** → order marked *Paid*, redirected to the order confirmation.
-- **Failure / cancel** → order stays *Pending* so it can be retried; no state is changed on the
-  unverified failure callback.
-
----
+handles it
 
 ## 7. SEO & analytics
 
