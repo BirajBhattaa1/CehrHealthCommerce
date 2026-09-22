@@ -54,65 +54,6 @@ Verify the SDK is installed:
 
 ```bash
 dotnet --version      # should print 8.0.xxx
-```
-
----
-
-## 4. Getting started (Windows)
-
-Open a terminal (PowerShell or Command Prompt) in the project folder that contains
-`CehrHealthCommerce.csproj`.
-
-### Step 1 — Restore packages
-
-```bash
-dotnet restore
-```
-
-### Step 2 — Install the EF Core CLI tool (one time)
-
-```bash
-dotnet tool install --global dotnet-ef --version 8.*
-```
-
-If it is already installed, update it instead: `dotnet tool update --global dotnet-ef --version 8.*`.
-
-### Step 3 — Create the initial database migration  ⚠️ required
-
-This project ships **without** a `Migrations/` folder, so you must generate the first migration
-once. The application applies migrations automatically at startup, so you only need to create it:
-
-```bash
-dotnet ef migrations add InitialCreate
-```
-
-This creates a `Migrations/` folder describing the whole schema (Identity tables, products,
-categories, carts, orders, payments, etc.).
-
-### Step 4 — Run the application
-
-```bash
-dotnet run
-```
-
-On first launch the app will:
-
-1. **create the database** and apply the `InitialCreate` migration (via `Database.MigrateAsync()`), then
-2. **seed** the two roles, a demo admin, a demo customer, and the full sample catalogue
-   (see `Data/DbSeeder.cs`).
-
-Then browse to the HTTPS URL printed in the console — by default:
-
-```
-https://localhost:7080
-```
-
-> The first HTTPS run may prompt you to trust the ASP.NET Core development certificate. If needed,
-> run `dotnet dev-certs https --trust` once.
-
-*(Optional)* If you prefer to create the database before running, you can run
-`dotnet ef database update` after Step 3 — but it is not necessary because startup migration
-handles it
 
 ## 7. SEO & analytics
 
