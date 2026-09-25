@@ -1,0 +1,203 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    ViewData["MetaDescription"] = "Complete your medicine order with secure sandbox payment and delivery anywhere in Nepal.";
+}
+
+<div class="d-flex align-items-center mb-4">
+    <i class="bi bi-bag-check-fill me-3" style="font-size: 2rem; color: var(--primary-teal);"></i>
+    <h1 class="h3 mb-0">Complete Your Order</h1>
+</div>
+
+<form asp-controller="Checkout" asp-action="Index" method="post" id="checkoutForm">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h5 mb-3"><i class="bi bi-truck me-2"></i>Delivery Details</h2>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label"></label>
+                            <input asp-for="FullName" class="form-control" autocomplete="name" required />
+                            <span asp-validation-for="FullName" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" type="tel" class="form-control" autocomplete="tel" placeholder="98XXXXXXXX" required />
+                            <span asp-validation-for="Phone" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" type="email" class="form-control" autocomplete="email" required />
+                            <span asp-validation-for="Email" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="AddressLine" class="form-label"></label>
+                            <input asp-for="AddressLine" class="form-control" autocomplete="street-address" placeholder="Tole, street name, house number" required />
+                            <span asp-validation-for="AddressLine" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Province" class="form-label"></label>
+                            <select asp-for="Province" id="Province" class="form-select" required>
+                                <option value="">-- Select province --</option>
+                                @foreach (var province in (IEnumerable<string>)ViewBag.Provinces)
+                                {
+                                    <option value="@province">@province</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Province" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="District" class="form-label"></label>
+                            <select asp-for="District" id="District" class="form-select" data-selected="@Model.District" required>
+                                <option value="">-- Select district --</option>
+                            </select>
+                            <span asp-validation-for="District" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Municipality" class="form-label"></label>
+                            <input asp-for="Municipality" class="form-control" placeholder="e.g. Kathmandu Metropolitan City" required />
+                            <span asp-validation-for="Municipality" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="Ward" class="form-label"></label>
+                            <input asp-for="Ward" type="text" class="form-control" placeholder="e.g. 10" maxlength="2" />
+                            <span asp-validation-for="Ward" class="form-validation-error"></span>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="PostalCode" class="form-label"></label>
+                            <input asp-for="PostalCode" type="text" class="form-control" placeholder="44600" maxlength="5" />
+                            <span asp-validation-for="PostalCode" class="form-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3"><i class="bi bi-credit-card me-2"></i>Payment Method</h2>
+
+                    <div class="form-check border rounded p-3 mb-2 d-flex align-items-start">
+                        <input class="form-check-input mt-1 ms-0 me-3" type="radio" asp-for="PaymentMethod" id="pm-esewa" value="esewa" checked />
+                        <label class="form-check-label w-100" for="pm-esewa">
+                            <div class="fw-semibold mb-1">eSewa (Sandbox)</div>
+                            <div class="text-muted small">Pay online through eSewa test gateway. No real money is charged.</div>
+                        </label>
+                    </div>
+                    <div class="form-check border rounded p-3 d-flex align-items-start">
+                        <input class="form-check-input mt-1 ms-0 me-3" type="radio" asp-for="PaymentMethod" id="pm-cod" value="cod" />
+                        <label class="form-check-label w-100" for="pm-cod">
+                            <div class="fw-semibold mb-1">Cash on Delivery</div>
+                            <div class="text-muted small">Pay in cash when your order is delivered to your address.</div>
+                        </label>
+                    </div>
+                    <span asp-validation-for="PaymentMethod" class="form-validation-error"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm position-sticky" style="top: 20px;">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Order Summary</h2>
+                    <ul class="list-group list-group-flush mb-3">
+                        @foreach (var line in Model.Cart.Lines)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">@line.Name</div>
+                                    <div class="text-muted small">@line.Quantity × NPR @line.UnitPrice.ToString("N2")</div>
+                                </div>
+                                <span class="fw-semibold ms-2">NPR @line.LineTotal.ToString("N2")</span>
+                            </li>
+                        }
+                    </ul>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span>NPR @Model.Cart.Subtotal.ToString("N2")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Delivery Fee</span>
+                        <span>NPR @Model.DeliveryCharge.ToString("N2")</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between h5 mb-4">
+                        <span>Total</span>
+                        <span style="color: var(--primary-teal);">NPR @Model.Total.ToString("N2")</span>
+                    </div>
+
+                    <button type="submit" id="placeOrderBtn" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-bag-check me-2"></i>Place Order
+                    </button>
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-link w-100 mt-2">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Cart
+                    </a>
+                    <p class="text-muted small mt-3 mb-0 text-center">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Academic demo - Sandbox payments only
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const geoData = @Html.Raw(ViewBag.GeoJson);
+            const provinceSelect = document.getElementById('Province');
+            const districtSelect = document.getElementById('District');
+            const preselectedDistrict = districtSelect.getAttribute('data-selected') || '';
+
+            function populateDistricts(provinceName, selectedDistrict) {
+                districtSelect.innerHTML = '<option value="">-- Select district --</option>';
+                const districts = geoData[provinceName] || [];
+                districts.forEach(function (district) {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    if (district === selectedDistrict) {
+                        option.selected = true;
+                    }
+                    districtSelect.appendChild(option);
+                });
+            }
+
+            provinceSelect.addEventListener('change', function () {
+                populateDistricts(this.value, '');
+            });
+
+            if (provinceSelect.value) {
+                populateDistricts(provinceSelect.value, preselectedDistrict);
+            }
+
+            const checkoutForm = document.getElementById('checkoutForm');
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            let isSubmitting = false;
+
+            checkoutForm.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                isSubmitting = true;
+                placeOrderBtn.disabled = true;
+                placeOrderBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+                setTimeout(function() {
+                    if (isSubmitting) {
+                        isSubmitting = false;
+                        placeOrderBtn.disabled = false;
+                        placeOrderBtn.innerHTML = '<i class="bi bi-bag-check me-2"></i>Place Order';
+                    }
+                }, 5000);
+            });
+        })();
+    </script>
+}

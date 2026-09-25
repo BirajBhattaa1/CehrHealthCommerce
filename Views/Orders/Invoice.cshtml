@@ -1,0 +1,198 @@
+@model NepalMediHub.Models.Order
+@{
+    ViewData["Title"] = $"Medical Invoice #{Model.OrderId}";
+    var taxRate = 0.13m;
+    var subtotalBeforeTax = Model.TotalAmount - 100m;
+    var taxAmount = subtotalBeforeTax * taxRate;
+    var subtotalWithoutTax = subtotalBeforeTax - taxAmount;
+}
+
+<div class="invoice-container">
+    <div class="d-flex justify-content-between align-items-start mb-4 no-print">
+        <h1 class="h4 mb-0">Medical Order Invoice</h1>
+        <button onclick="window.print()" class="btn btn-primary-custom">
+            <i class="bi bi-printer-fill me-2"></i>Print Invoice
+        </button>
+    </div>
+
+    <div class="border rounded p-4 bg-white">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-heart-pulse-fill me-2" style="font-size: 2rem; color: var(--primary-teal);"></i>
+                    <div>
+                        <h2 class="h5 mb-0 fw-bold" style="color: var(--primary-teal);">Nepal MediHub</h2>
+                        <p class="text-muted small mb-0">National Health Marketplace</p>
+                    </div>
+                </div>
+                <p class="small text-muted mb-0">
+                    Online-only &mdash; no physical store<br>
+                    Delivering across all seven provinces, Nepal<br>
+                    Academic project (CSC381, TU BSc CSIT)<br>
+                    Payments: eSewa sandbox (test) only
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <h3 class="h4 fw-bold mb-2">MEDICAL INVOICE</h3>
+                <p class="mb-1"><strong>Invoice Number:</strong> INV-@Model.OrderId.ToString("D6")</p>
+                <p class="mb-1"><strong>Order Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
+                <p class="mb-1"><strong>Order ID:</strong> #@Model.OrderId</p>
+                @if (!string.IsNullOrEmpty(Model.PatientHealthId))
+                {
+                    <p class="mb-1"><strong>Patient Health ID:</strong> @Model.PatientHealthId</p>
+                }
+                <p class="mb-0">
+                    <span class="badge @(Model.PaymentStatus == NepalMediHub.Models.PaymentStatus.Successful ? "bg-success" : "bg-warning")">
+                        @Model.PaymentStatus
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4 class="h6 fw-bold mb-2">Patient/Customer Details:</h4>
+                <p class="mb-0">
+                    <strong>@Model.FullName</strong><br>
+                    @Model.AddressLine<br>
+                    @Model.Municipality, Ward @Model.Ward<br>
+                    @Model.District, @Model.Province<br>
+                    @if (!string.IsNullOrEmpty(Model.PostalCode))
+                    {
+                        <span>Postal Code: @Model.PostalCode<br></span>
+                    }
+                    Phone: @Model.Phone<br>
+                    Email: @Model.Email
+                </p>
+            </div>
+            <div class="col-md-6">
+                <h4 class="h6 fw-bold mb-2">Delivery Address:</h4>
+                <p class="mb-0">
+                    <strong>@Model.FullName</strong><br>
+                    @Model.AddressLine<br>
+                    @Model.Municipality, Ward @Model.Ward<br>
+                    @Model.District, @Model.Province<br>
+                    Nepal
+                </p>
+            </div>
+        </div>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered">
+                <thead style="background-color: var(--bg-soft);">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">#</th>
+                        <th>Medicine/Product Description</th>
+                        <th class="text-end" style="width: 120px;">Unit Price (NPR)</th>
+                        <th class="text-center" style="width: 80px;">Qty</th>
+                        <th class="text-end" style="width: 140px;">Line Total (NPR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int itemNumber = 1; }
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-center">@itemNumber</td>
+                            <td>
+                                @item.ProductName
+                                @if (item.Product?.PrescriptionRequired == true)
+                                {
+                                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem;">Rx</span>
+                                }
+                            </td>
+                            <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                            <td class="text-center">@item.Quantity</td>
+                            <td class="text-end">@item.LineTotal.ToString("N2")</td>
+                        </tr>
+                        itemNumber++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="h6 fw-bold mb-2">Payment Information:</h4>
+                <p class="mb-1"><strong>Payment Method:</strong> @(Model.Payment?.Method ?? "N/A")</p>
+                @if (Model.Payment != null && !string.IsNullOrEmpty(Model.Payment.GatewayRef))
+                {
+                    <p class="mb-1"><strong>Transaction Reference:</strong> @Model.Payment.GatewayRef</p>
+                }
+                @if (Model.Payment?.VerifiedAt != null)
+                {
+                    <p class="mb-0"><strong>Payment Date:</strong> @Model.Payment.VerifiedAt.Value.ToString("MMMM dd, yyyy")</p>
+                }
+            </div>
+            <div class="col-md-6">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="border-0 text-end"><strong>Subtotal:</strong></td>
+                            <td class="border-0 text-end" style="width: 140px;">NPR @subtotalWithoutTax.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="border-0 text-end"><strong>Delivery Charge:</strong></td>
+                            <td class="border-0 text-end">NPR 100.00</td>
+                        </tr>
+                        <tr>
+                            <td class="border-0 text-end"><strong>VAT (13%):</strong></td>
+                            <td class="border-0 text-end">NPR @taxAmount.ToString("N2")</td>
+                        </tr>
+                        <tr class="border-top">
+                            <td class="border-0 text-end"><h4 class="h5 mb-0"><strong>Grand Total:</strong></h4></td>
+                            <td class="border-0 text-end"><h4 class="h5 mb-0"><strong>NPR @Model.TotalAmount.ToString("N2")</strong></h4></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="alert alert-warning border-0 mb-3" role="alert">
+            <small><strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Medical Disclaimer:</strong> This invoice is for purchase record only. Medicines should be taken as prescribed by a licensed healthcare provider. For emergency medical assistance, call 102.</small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <p class="small text-muted mb-0">
+                    <strong>Terms & Conditions:</strong><br>
+                    All medicines are dispensed under DDA-licensed pharmacist supervision. Prescription medicines require valid doctor prescription.
+                    All sales are final unless products are defective or expired. Contact us within 7 days for returns.
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <p class="small text-muted mb-0">
+                    Thank you for trusting<br>
+                    <strong style="color: var(--primary-teal);">Nepal MediHub</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 no-print">
+        <a asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Order Details
+        </a>
+    </div>
+</div>
+
+@section Head {
+    <style>
+        @@media print {
+            .navbar, footer, .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .invoice-container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+}

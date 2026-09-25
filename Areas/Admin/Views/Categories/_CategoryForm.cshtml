@@ -1,0 +1,29 @@
+@model CategoryFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ParentCategoryId" class="form-label"></label>
+    <select asp-for="ParentCategoryId" asp-items="ViewBag.Parents" class="form-select">
+        <option value="">— None (top level) —</option>
+    </select>
+    <div class="form-text">Optional. Leave empty for a top-level category.</div>
+    <span asp-validation-for="ParentCategoryId" class="text-danger small"></span>
+</div>
+
+<div class="form-check form-switch">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>

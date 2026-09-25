@@ -1,0 +1,79 @@
+@model IReadOnlyList<NepalMediHub.Models.Product>
+@{
+    ViewData["Title"] = "National Health Marketplace";
+    ViewData["MetaDescription"] = "Nepal MediHub - Buy medicines, health supplies and medical equipment online with delivery across all seven provinces of Nepal. Simulated NID sign-up, secure eSewa sandbox payments.";
+}
+
+<div class="hero-banner mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <h1 class="display-5 fw-bold mb-3" style="color: var(--primary-teal);">A Health Hub for All of Nepal</h1>
+            <p class="lead text-muted mb-4">Medicines, health supplies and medical equipment delivered to your doorstep anywhere in Nepal &mdash; from Koshi to Sudurpashchim. Sign up with a simulated NID and manage your health purchases in one place.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary-custom btn-lg">
+                    <i class="bi bi-capsule me-2"></i>Browse Medicines
+                </a>
+                <a asp-controller="Home" asp-action="About" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-info-circle me-2"></i>About Nepal MediHub
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-5 mt-4 mt-lg-0 text-center">
+            <div class="p-4 bg-white rounded shadow-sm">
+                <i class="bi bi-geo-alt-fill" style="font-size: 4rem; color: var(--success-green);"></i>
+                <h5 class="mt-3 mb-2">Seven Provinces, One Hub</h5>
+                <p class="text-muted small mb-0">Online-only &mdash; no physical store, delivery nationwide</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-5">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-prescription2" style="font-size: 2.5rem; color: var(--primary-teal);"></i>
+            <h5 class="mt-3 mb-2">Prescription Medicines</h5>
+            <p class="text-muted small mb-0">Order Rx medicines by uploading a prescription. Demonstration flow only &mdash; no legal validation is performed.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-truck" style="font-size: 2.5rem; color: var(--accent-blue);"></i>
+            <h5 class="mt-3 mb-2">Nationwide Delivery</h5>
+            <p class="text-muted small mb-0">Doorstep delivery to every district in all seven provinces, from the Terai to the high Himalaya.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-shield-check" style="font-size: 2.5rem; color: var(--success-green);"></i>
+            <h5 class="mt-3 mb-2">Secure Payments</h5>
+            <p class="text-muted small mb-0">eSewa sandbox (test) or Cash on Delivery. No real money moves in this academic build.</p>
+        </div>
+    </div>
+</div>
+
+@if (Model.Any())
+{
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 mb-0">Featured Medicines & Health Products</h2>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-secondary">View All</a>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            @foreach (var product in Model)
+            {
+                <partial name="_ProductCard" model="product" />
+            }
+        </div>
+    </section>
+}
+
+<div class="alert alert-info border-0 shadow-sm" role="alert">
+    <div class="d-flex align-items-start">
+        <i class="bi bi-info-circle-fill me-3" style="font-size: 1.5rem;"></i>
+        <div>
+            <h6 class="alert-heading mb-2">Simulated NID &amp; Future CEHR Integration</h6>
+            <p class="small mb-0">Every account is anchored to a <strong>simulated, local-only NID</strong> (10&ndash;16 digits). It is not connected to any Government of Nepal system or real CEHR. The Patient Health ID seam is built and ready to be pointed at an authorised national health record service in the future.</p>
+        </div>
+    </div>
+</div>

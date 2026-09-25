@@ -1,0 +1,127 @@
+@model IReadOnlyList<NepalMediHub.Models.Category>
+@{
+    ViewData["Title"] = "Medicine Categories";
+    ViewData["MetaDescription"] = "Browse medicine and health product categories - find pain relief, cold & flu medicines, vitamins, medical equipment and more.";
+}
+
+<div class="mb-4">
+    <h1 class="h3 mb-2">Browse by Category</h1>
+    <p class="text-muted">Explore our range of medicines, medical equipment, and health products organized by category</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-light border">No categories are available yet.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var category in Model)
+        {
+            @if (category.Children.Any())
+            {
+                <div class="col">
+                    <div class="card h-100 category-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="category-icon me-3">
+                                    @switch (category.Name.ToLower())
+                                    {
+                                        case var n when n.Contains("medicine"):
+                                            <i class="bi bi-capsule-pill"></i>
+                                            break;
+                                        case var n when n.Contains("equipment"):
+                                            <i class="bi bi-heart-pulse-fill"></i>
+                                            break;
+                                        case var n when n.Contains("health"):
+                                            <i class="bi bi-heart"></i>
+                                            break;
+                                        default:
+                                            <i class="bi bi-grid"></i>
+                                            break;
+                                    }
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h2 class="h5 mb-1">@category.Name</h2>
+                                    @if (!string.IsNullOrEmpty(category.Description))
+                                    {
+                                        <p class="text-muted small mb-0">@category.Description</p>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="subcategories-list">
+                                @foreach (var child in category.Children.OrderBy(c => c.Name))
+                                {
+                                    <a asp-controller="Products" asp-action="Category" asp-route-slug="@child.Slug"
+                                       class="subcategory-link">
+                                        <i class="bi bi-chevron-right me-1"></i>@child.Name
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}
+
+<style>
+.category-card {
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-light);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.category-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(15, 118, 110, 0.15) !important;
+    border-color: var(--primary-teal);
+}
+
+.category-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-forest) 100%);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.subcategories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.subcategory-link {
+    padding: 0.5rem 0.75rem;
+    background: rgba(15, 118, 110, 0.05);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-charcoal);
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.subcategory-link:hover {
+    background: rgba(15, 118, 110, 0.1);
+    border-color: var(--primary-teal);
+    color: var(--primary-teal);
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(15, 118, 110, 0.1);
+}
+
+.subcategory-link i {
+    transition: transform 0.2s ease;
+}
+
+.subcategory-link:hover i {
+    transform: translateX(2px);
+}
+</style>

@@ -1,0 +1,182 @@
+@model Order
+@{
+    ViewData["Title"] = $"Order #{Model.OrderId}";
+    ViewData["MetaDescription"] = "View your medicine order details, delivery status, and payment information.";
+    var subtotal = Model.Items.Sum(i => i.LineTotal);
+    var delivery = Model.TotalAmount - subtotal;
+}
+
+@functions {
+    static string StatusClass(OrderStatus s) => s switch
+    {
+        OrderStatus.Delivered => "bg-success",
+        OrderStatus.Shipped => "bg-info text-dark",
+        OrderStatus.Processing => "bg-primary",
+        OrderStatus.Confirmed => "bg-primary",
+        OrderStatus.Cancelled => "bg-danger",
+        _ => "bg-secondary"
+    };
+    static string PayClass(PaymentStatus s) => s switch
+    {
+        PaymentStatus.Successful => "bg-success",
+        PaymentStatus.Failed => "bg-danger",
+        _ => "bg-warning text-dark"
+    };
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item"><a asp-action="Index">My orders</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Order #@Model.OrderId</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-1">Order #@Model.OrderId</h1>
+        <span class="text-muted small">Placed @Model.OrderDate.ToLocalTime().ToString("MMMM dd, yyyy hh:mm tt")</span>
+    </div>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+        <span class="badge @StatusClass(Model.OrderStatus) fs-6">@Model.OrderStatus</span>
+        <span class="badge @PayClass(Model.PaymentStatus) fs-6">Payment: @Model.PaymentStatus</span>
+    </div>
+</div>
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    <a asp-action="Invoice" asp-route-id="@Model.OrderId" class="btn btn-outline-secondary">
+        <i class="bi bi-file-earmark-text me-2"></i>View Invoice
+    </a>
+    @if (Model.OrderStatus == OrderStatus.Pending || Model.OrderStatus == OrderStatus.Processing)
+    {
+        <form asp-action="Cancel" asp-route-id="@Model.OrderId" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this order? Stock will be restored.');">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-x-circle me-2"></i>Cancel Order
+            </button>
+        </form>
+    }
+</div>
+
+@if (Model.PaymentStatus == PaymentStatus.Pending && Model.Payment?.Method == "eSewa")
+{
+    <div class="alert alert-warning d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-exclamation-triangle"></i> This order is awaiting payment.</span>
+        <a asp-controller="Payment" asp-action="Pay" asp-route-orderId="@Model.OrderId" class="btn btn-sm btn-primary-custom">Complete payment</a>
+    </div>
+}
+
+@if (Model.OrderStatus == OrderStatus.Cancelled)
+{
+    <div class="alert alert-danger">
+        <i class="bi bi-x-circle-fill me-2"></i>This order has been cancelled. Stock has been restored.
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Order Items</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead style="background-color: var(--bg-soft);">
+                            <tr>
+                                <th>Product</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@item.ProductName</div>
+                                    </td>
+                                    <td class="text-end">NPR @item.UnitPrice.ToString("N2")</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end fw-semibold">NPR @item.LineTotal.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end text-muted">Subtotal</td>
+                                <td class="text-end">NPR @subtotal.ToString("N2")</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" class="text-end text-muted">Delivery Fee</td>
+                                <td class="text-end">NPR @delivery.ToString("N2")</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td colspan="3" class="text-end h6 mb-0"><strong>Total</strong></td>
+                                <td class="text-end h6 mb-0"><strong style="color: var(--primary-teal);">NPR @Model.TotalAmount.ToString("N2")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h6 mb-3"><i class="bi bi-geo-alt-fill text-primary"></i> Delivery Address</h2>
+                <p class="mb-1 fw-semibold">@Model.FullName</p>
+                <p class="mb-1 text-muted small">
+                    <i class="bi bi-telephone me-1"></i>@Model.Phone<br />
+                    <i class="bi bi-envelope me-1"></i>@Model.Email
+                </p>
+                <hr class="my-2">
+                <p class="mb-0 small">
+                    @Model.AddressLine<br />
+                    @Model.Municipality@(string.IsNullOrEmpty(Model.Ward) ? "" : $", Ward {Model.Ward}")<br />
+                    @Model.District, @Model.Province@(string.IsNullOrEmpty(Model.PostalCode) ? "" : $" - {Model.PostalCode}")<br />
+                    Nepal
+                </p>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <h2 class="h6 mb-3"><i class="bi bi-credit-card-fill text-primary"></i> Payment Details</h2>
+                @if (Model.Payment != null)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Method</span>
+                        <span class="fw-semibold">@Model.Payment.Method</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Status</span>
+                        <span class="badge @PayClass(Model.Payment.PaymentStatus)">@Model.Payment.PaymentStatus</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Amount</span>
+                        <span class="fw-semibold">NPR @Model.Payment.Amount.ToString("N2")</span>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Payment.GatewayRef))
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Reference</span>
+                            <span class="small font-monospace">@Model.Payment.GatewayRef</span>
+                        </div>
+                    }
+                    @if (Model.Payment.VerifiedAt.HasValue)
+                    {
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Paid On</span>
+                            <span class="small">@Model.Payment.VerifiedAt.Value.ToString("MMM dd, yyyy")</span>
+                        </div>
+                    }
+                    <hr class="my-2">
+                    <div class="text-muted small">Transaction ID: @Model.Payment.TransactionUuid</div>
+                }
+                else
+                {
+                    <p class="text-muted small mb-0">No payment record available.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+    ViewData["MetaDescription"] = "Create your Nepal MediHub account to order medicines online, track your purchase history, and link a simulated Patient Health ID.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="text-center mb-4">
+            <i class="bi bi-person-plus-fill" style="font-size: 3rem; color: var(--primary-teal);"></i>
+            <h1 class="h3 mt-3 mb-2">Create Your Account</h1>
+            <p class="text-muted small">Join Nepal MediHub for online medicine ordering and purchase tracking</p>
+        </div>
+
+        <form asp-controller="Account" asp-action="Register" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label"></label>
+                <input asp-for="FullName" class="form-control" autocomplete="name" required />
+                <span asp-validation-for="FullName" class="form-validation-error"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NID" class="form-label"></label>
+                <input asp-for="NID" class="form-control" placeholder="10 to 16 digits" inputmode="numeric" required />
+                <div class="form-text small">Simulated National ID: 10 to 16 digits. Checked for format and uniqueness in this project's own database only &mdash; it is not a real government identifier and is never sent anywhere.</div>
+                <span asp-validation-for="NID" class="form-validation-error"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-7 mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" type="email" class="form-control" autocomplete="email" required />
+                    <span asp-validation-for="Email" class="form-validation-error"></span>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" type="tel" class="form-control" autocomplete="tel" placeholder="98XXXXXXXX" required />
+                    <span asp-validation-for="Phone" class="form-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" required />
+                    <div class="form-text small">Minimum 6 characters</div>
+                    <span asp-validation-for="Password" class="form-validation-error"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" required />
+                    <span asp-validation-for="ConfirmPassword" class="form-validation-error"></span>
+                </div>
+            </div>
+
+            <div class="alert alert-info border-0 mb-3" role="alert">
+                <small><i class="bi bi-info-circle me-1"></i><strong>Simulated identity:</strong> the NID above is a local project construct. After registering, you can optionally link a Patient Health ID in your profile &mdash; this is groundwork for a future national health record service, not a connection to one.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary-custom w-100">Create Account</button>
+        </form>
+
+        <p class="text-center text-muted small mt-4 mb-0">
+            Already have an account? <a asp-controller="Account" asp-action="Login" style="color: var(--primary-teal);">Sign in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,27 @@
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@*
+    Google Analytics 4 (GA4) tag — Area 3 (SEO & Analytics).
+
+    This partial renders the gtag.js snippet ONLY when a real GA4 Measurement ID
+    is present in configuration (Analytics:GoogleMeasurementId). By default the key
+    is empty, so nothing is emitted and no analytics calls are made. This keeps the
+    project honest: no fake/placeholder analytics traffic is generated for the demo.
+
+    To enable, set a real ID (format "G-XXXXXXXXXX") via user-secrets, an environment
+    variable (Analytics__GoogleMeasurementId), or appsettings for a real deployment.
+    The Content-Security-Policy in Program.cs already whitelists the GA domains.
+*@
+@{
+    var measurementId = Configuration["Analytics:GoogleMeasurementId"];
+}
+@if (!string.IsNullOrWhiteSpace(measurementId))
+{
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=@measurementId"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', '@measurementId');
+    </script>
+}

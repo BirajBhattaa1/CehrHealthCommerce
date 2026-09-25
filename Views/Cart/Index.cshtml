@@ -1,0 +1,97 @@
+@model CartViewModel
+@{
+    ViewData["Title"] = "Your cart";
+}
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success">@ok</div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
+
+<h1 class="h3 mb-4">Your cart</h1>
+
+@if (Model.IsEmpty)
+{
+    <div class="text-center py-5">
+        <i class="bi bi-cart-x text-muted" style="font-size:4rem;"></i>
+        <p class="text-muted mt-3">Your cart is empty.</p>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-primary-custom">Start shopping</a>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-end">Price</th>
+                            <th style="width:160px;">Qty</th>
+                            <th class="text-end">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-slug="@line.Slug" class="text-decoration-none text-dark fw-semibold">@line.Name</a>
+                                    @if (line.PrescriptionRequired)
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning-emphasis ms-1">Rx</span>
+                                    }
+                                    @if (line.Quantity > line.StockQuantity)
+                                    {
+                                        <div class="text-danger small">Only @line.StockQuantity in stock — please reduce quantity.</div>
+                                    }
+                                </td>
+                                <td class="text-end">Rs. @line.UnitPrice.ToString("N2")</td>
+                                <td>
+                                    <form asp-controller="Cart" asp-action="Update" method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="productId" value="@line.ProductId" />
+                                        <input type="number" name="quantity" value="@line.Quantity" min="1" max="@line.StockQuantity" class="form-control form-control-sm" style="width:75px;" />
+                                        <button class="btn btn-sm btn-primary-custom" title="Update quantity">Update</button>
+                                    </form>
+                                </td>
+                                <td class="text-end fw-semibold">Rs. @line.LineTotal.ToString("N2")</td>
+                                <td class="text-end">
+                                    <form asp-controller="Cart" asp-action="Remove" method="post">
+                                        <input type="hidden" name="productId" value="@line.ProductId" />
+                                        <button class="btn btn-sm btn-link text-danger p-0" title="Remove"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between">
+                <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-link"><i class="bi bi-arrow-left"></i> Continue shopping</a>
+                <form asp-controller="Cart" asp-action="Clear" method="post">
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x-circle"></i> Clear cart</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Order summary</h2>
+                    <div class="d-flex justify-content-between"><span class="text-muted">Items</span><span>@Model.ItemCount</span></div>
+                    <div class="d-flex justify-content-between mb-2"><span class="text-muted">Subtotal</span><span class="fw-bold">Rs. @Model.Subtotal.ToString("N2")</span></div>
+                    <p class="text-muted small">Delivery charges are calculated at checkout.</p>
+                    <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary-custom w-100">Proceed to checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Lines.First().ProductId, count = 4, heading = "Recommended for you" })
+}

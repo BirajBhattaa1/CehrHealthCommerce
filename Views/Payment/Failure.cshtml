@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Payment not completed";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                <h1 class="h4 mt-3 mb-2">Payment was not completed</h1>
+                <p class="text-muted mb-4">
+                    Your eSewa payment was cancelled or did not go through. Your order is still saved
+                    and remains awaiting payment — you can try again from your orders at any time.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-primary-custom">
+                        <i class="bi bi-receipt"></i> Go to my orders
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">
+                        Continue shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

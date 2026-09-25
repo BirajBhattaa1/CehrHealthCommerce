@@ -1,0 +1,42 @@
+@model EsewaFormModel
+@{
+    ViewData["Title"] = "Redirecting to eSewa";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-body text-center p-5">
+                <div class="spinner-border text-success mb-3" role="status" aria-hidden="true"></div>
+                <h1 class="h4 mb-2">Redirecting to eSewa…</h1>
+                <p class="text-muted mb-4">
+                    You are being taken to the eSewa <strong>sandbox</strong> to complete your payment securely.
+                    If you are not redirected automatically, use the button below.
+                </p>
+
+                <form id="esewaForm" method="post" action="@Model.ActionUrl">
+                    @foreach (var field in Model.Fields)
+                    {
+                        <input type="hidden" name="@field.Key" value="@field.Value" />
+                    }
+                    <button type="submit" class="btn btn-primary-custom btn-lg">
+                        <i class="bi bi-shield-lock"></i> Pay with eSewa
+                    </button>
+                </form>
+
+                <p class="small text-muted mt-3 mb-0">
+                    <i class="bi bi-info-circle"></i> Sandbox environment — no real money is charged.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-submit to the eSewa hosted payment page.
+        window.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () { document.getElementById('esewaForm').submit(); }, 600);
+        });
+    </script>
+}
