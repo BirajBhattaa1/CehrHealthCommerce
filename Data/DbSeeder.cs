@@ -43,6 +43,7 @@ public static class DbSeeder
         await EnsureUserAsync(userManager, CustomerEmail, CustomerPassword, "Demo Customer", "2000000002", CustomerRole);
 
         await SeedCatalogAsync(db);
+        await SeedProductImagesAsync(db, services.GetRequiredService<IWebHostEnvironment>());
     }
 
     private static async Task EnsureRolesAsync(RoleManager<IdentityRole> roleManager)
@@ -157,6 +158,8 @@ public static class DbSeeder
             {
                 Name = name,
                 Slug = slug,
+                // Catalogue images ship with the project under wwwroot/images/products.
+                ImageUrl = $"/images/products/{slug}.jpg",
                 SKU = $"CEHR-{code}-{seq:D3}",
                 Price = price,
                 StockQuantity = stock,
@@ -232,5 +235,43 @@ public static class DbSeeder
 
         db.Products.AddRange(products);
         await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Attaches the bundled catalogue images to any product that has no image yet.
+    /// The seeder creates products without an <c>ImageUrl</c> value, and
+    /// <see cref="SeedCatalogAsync"/> skips a catalogue that already exists, so this runs on
+    /// every startup: it repairs databases created before the images were wired up and it
+    /// keeps working if the database is deleted and recreated.
+    /// Images live under wwwroot/images/products/{slug}.jpg.
+    /// </summary>
+    private static async Task SeedProductImagesAsync(ApplicationDbContext db, IWebHostEnvironment env)
+    {
+        var webRoot = env.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var imageFolder = Path.Combine(webRoot, "images", "products");
+
+        var withoutImage = await db.Products
+            .Where(p => p.ImageUrl == null || p.ImageUrl == string.Empty)
+            .ToListAsync();
+
+        var changed = false;
+        foreach (var product in withoutImage)
+        {
+            var fileName = $"{product.Slug}.jpg";
+
+            // Never write a path to a file that is not there (e.g. a product added by an admin).
+            if (!File.Exists(Path.Combine(imageFolder, fileName)))
+            {
+                continue;
+            }
+
+            product.ImageUrl = $"/images/products/{fileName}";
+            changed = true;
+        }
+
+        if (changed)
+        {
+            await db.SaveChangesAsync();
+        }
     }
 }
